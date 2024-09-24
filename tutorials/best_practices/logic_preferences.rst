@@ -100,6 +100,21 @@ either? Let's see an example:
         }
     }
 
+  .. code-tab:: cpp C++
+
+    using namespace godot;
+
+    class MyBuildings : public Node {
+    public:
+        const Ref<PackedScene> building = ResourceLoader::get_singleton()->load("res://building.tscn");
+        Ref<PackedScene> a_building;
+
+        void _ready() override {
+            // Can assign the value during initialization.
+            a_building = ResourceLoader::get_singleton()->load("res://office.tscn");
+        }
+    }
+
 Preloading allows the script to handle all the loading the moment one loads the
 script. Preloading is useful, but there are also times when one doesn't wish
 for it. To distinguish these situations, there are a few things one can
