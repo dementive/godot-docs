@@ -107,6 +107,7 @@ implementing a Timer-timeout loop is another option.
     using namespace godot;
 
     class MyNode : public Node {
+        GDCLASS(MyNode, Node)
     public:
         // Allows for recurring operations that don't trigger script logic
         // every frame (or even every fixed frame).
@@ -115,11 +116,11 @@ implementing a Timer-timeout loop is another option.
             timer->set_autostart(true);
             timer->set_wait_time(0.5);
             add_child(timer);
+            timer->connect("timeout", Callable(this, "run"));
+        }
 
-            // I have no idea what this would be in C++  :(
-            // timer.timeout.connect(func():
-            //     print("This block runs every 0.5 seconds")
-            // )
+        void run() {
+            UtilityFunctions::print("This block runs every 0.5 seconds");
         }
     };
 
@@ -186,17 +187,19 @@ delta time methods as needed.
     using namespace godot;
 
     class MyNode : public Node {
+        GDCLASS(MyNode, Node)
     public:
         // Called every frame, even when the engine detects no input.
         void _process(double p_delta) {
-            if (Input::get_singleton->is_action_just_pressed("ui_select"))
+            if (Input::get_singleton->is_action_just_pressed("ui_select")) {
                 UtilityFunctions::print(p_delta);
+            }
         }
 
         // Called during every input event. Equally true for _input().
-        void _unhandled_input(const Ref<InputEvent> &event) {
-            const InputEventKey *key_event = Object::cast_to<const InputEventKey>(*event);
-            if (key_event != nullptr && Input::get_singleton->is_action_just_pressed("ui_accept")) {
+        void _unhandled_input(const Ref<InputEvent> &p_event) {
+            Ref<InputEventKey> key_event = event;
+            if (key_event.is_valid() && Input::get_singleton->is_action_just_pressed("ui_accept")) {
                 UtilityFunctions::print(get_process_delta_time());
             }
         }
@@ -385,30 +388,31 @@ nodes that one might create at runtime.
     using namespace godot;
 
     class MyNode : public Node {
-      Node parent_cache;
+        GDCLASS(MyNode, Node)
+        Node parent_cache;
 
-      void on_parent_interacted_with() {
-          UtilityFunctions::print("I'm reacting to my parent's interaction!");
-      }
+        void on_parent_interacted_with() {
+            UtilityFunctions::print("I'm reacting to my parent's interaction!");
+        }
 
     public:
-      void connection_check() {
-          return parent_cache.has_user_signal("interacted_with");
-      }
+        void connection_check() {
+            return parent_cache.has_user_signal("interacted_with");
+        }
 
-      void _notification(int p_what) {
-          switch (p_what) {
-              case NOTIFICATION_PARENTED:
-                  parent_cache = get_parent();
-                  if (connection_check()) {
-                      parent_cache.connect("interacted_with", Callable(this, "on_parent_interacted_with"));
-                  }
-                  break;
-              case NOTIFICATION_UNPARENTED:
-                  if (connection_check()) {
-                      parent_cache.disconnect("interacted_with", Callable(this, "on_parent_interacted_with"));
-                  }
-                  break;
-          }
-      }
+        void _notification(int p_what) {
+            switch (p_what) {
+                case NOTIFICATION_PARENTED:
+                    parent_cache = get_parent();
+                    if (connection_check()) {
+                        parent_cache.connect("interacted_with", callable_mp(this, &MyNode::on_parent_interacted_with));
+                    }
+                    break;
+                case NOTIFICATION_UNPARENTED:
+                    if (connection_check()) {
+                        parent_cache.disconnect("interacted_with", callable_mp(this, &MyNode::on_parent_interacted_with));
+                    }
+                    break;
+            }
+        }
     };

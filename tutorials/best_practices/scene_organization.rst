@@ -74,9 +74,9 @@ initialize it:
        // Parent
        Node *node = get_node<Node>("Child");
        if (node != nullptr) {
-          // Note that get_node may return a nullptr, which would make calling the connect method crash the engine if "Child" does not exist!
-          // So unless you are 1000% sure get_node will never return a nullptr, it's a good idea to always do a nullptr check.
-          node->connect("signal_name", Callable(this, "method_on_the_object"));
+           // Note that get_node may return a nullptr, which would make calling the connect method crash the engine if "Child" does not exist!
+           // So unless you are 1000% sure get_node will never return a nullptr, it's a good idea to always do a nullptr check.
+           node->connect("signal_name", callable_mp(this, &ObjectWithMethod::method_on_the_object));
        }
 
        // Child
@@ -106,7 +106,7 @@ initialize it:
        // Parent
        Node *node = get_node<Node>("Child");
        if (node != nullptr) {
-          node->set("method_name", "do");
+           node->set("method_name", "do");
        }
 
        // Child
@@ -137,7 +137,7 @@ initialize it:
        // Parent
        Node *node = get_node<Node>("Child");
        if (node != nullptr) {
-          node->set("func_property", Callable(&ObjectWithMethod::method_on_the_object));
+           node->set("func_property", Callable(&ObjectWithMethod::method_on_the_object));
        }
 
        // Child
@@ -167,7 +167,7 @@ initialize it:
        // Parent
        Node *node = get_node<Node>("Child");
        if (node != nullptr) {
-          node->set("target", this);
+           node->set("target", this);
        }
 
        // Child
@@ -197,7 +197,7 @@ initialize it:
        // Parent
        Node *node = get_node<Node>("Child");
        if (node != nullptr) {
-          node->set("target_path", NodePath(".."));
+           node->set("target_path", NodePath(".."));
        }
 
        // Child
@@ -262,36 +262,34 @@ in another context without any extra changes to its API.
       get_node<Left>("Left")->target = get_node<Node>("Right/Receiver");
 
       class Left : public Node {
-        GDCLASS(Left, Node)
+          GDCLASS(Left, Node)
 
-      protected:
-        static void _bind_methods() {} 
+          protected:
+              static void _bind_methods() {} 
 
-      public:
-        Node *target = nullptr;
+          public:
+              Node *target = nullptr;
 
-        Left() {}
+              Left() {}
 
-        void execute() {
-            // Do something with 'target'.
-        }
-
+              void execute() {
+                  // Do something with 'target'.
+              }
       };
 
       class Right : public Node {
-        GDCLASS(Right, Node)
+          GDCLASS(Right, Node)
 
-      protected:
-        static void _bind_methods() {}
+          protected:
+              static void _bind_methods() {}
 
-      public:
-        Node *receiver = nullptr;
+          public:
+              Node *receiver = nullptr;
 
-        Right() {
-          receiver = memnew(Node);
-          add_child(receiver);
-        }
-
+              Right() {
+                  receiver = memnew(Node);
+                  add_child(receiver);
+              }
       };
 
   The same principles also apply to non-Node objects that maintain dependencies
