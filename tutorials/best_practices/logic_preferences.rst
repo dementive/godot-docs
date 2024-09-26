@@ -106,11 +106,12 @@ either? Let's see an example:
 
     class MyBuildings : public Node {
         GDCLASS(MyBuildings, Node)
+
     public:
         const Ref<PackedScene> building = ResourceLoader::get_singleton()->load("res://building.tscn");
         Ref<PackedScene> a_building;
 
-        void _ready() override {
+        virtual void _ready() override {
             // Can assign the value during initialization.
             a_building = ResourceLoader::get_singleton()->load("res://office.tscn");
         }
